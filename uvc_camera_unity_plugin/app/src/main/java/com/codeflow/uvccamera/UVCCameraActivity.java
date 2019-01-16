@@ -1,4 +1,4 @@
-package com.codeflow.uvccamera;
+    package com.codeflow.uvccamera;
 
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -49,7 +49,7 @@ public class UVCCameraActivity extends UnityPlayerActivity
     protected  int mTextureID = -1;
     protected UVCCamera mUVCCamera = null;
     protected USBMonitor mUSBMonitor = null;
-    protected OnDeviceConnectListener mOnDeviceConnectListener;
+    //protected OnDeviceConnectListener mOnDeviceConnectListener;
     protected Boolean mConnected = false;
     protected Boolean mIsPreviewing = false;
 
@@ -121,6 +121,8 @@ public class UVCCameraActivity extends UnityPlayerActivity
                     mTextureID = -1;
                     mConnected = false;
                     mIsPreviewing = false;
+
+                    /*Logging.log(TAG, e1);*/
                 }
             }
 
@@ -425,7 +427,7 @@ public class UVCCameraActivity extends UnityPlayerActivity
         }
 
         @Override
-        public void onCancel()
+        public void onCancel(final UsbDevice device)
         {
             Log("onCancel");
         }

@@ -185,10 +185,12 @@ public class UVCCamera {
      */
     public void open(final UsbControlBlock ctrlBlock) {
 		mCtrlBlock = ctrlBlock;
-		nativeConnect(mNativePtr,
-			mCtrlBlock.getVenderId(), mCtrlBlock.getProductId(),
-			mCtrlBlock.getFileDescriptor(),
-			getUSBFSName(mCtrlBlock));
+        nativeConnect(mNativePtr,
+                mCtrlBlock.getVenderId(), mCtrlBlock.getProductId(),
+                mCtrlBlock.getFileDescriptor(),
+                mCtrlBlock.getBusNum(),
+                mCtrlBlock.getDevNum(),
+                getUSBFSName(mCtrlBlock));
     	if (mNativePtr != 0 && TextUtils.isEmpty(mSupportedSize)) {
     		mSupportedSize = nativeGetSupportedSize(mNativePtr);
     	}
@@ -326,7 +328,8 @@ public class UVCCamera {
 				final JSONObject format = formats.getJSONObject(i);
 				final int format_type = format.getInt("type");
 				if ((format_type == type) || (type == -1)) {
-					addSize(format, format_type, result);
+					//addSize(format, format_type, result);
+					addSize(format, format_type, 0, result);
 				}
 			}
 		} catch (final JSONException e) {
@@ -334,13 +337,26 @@ public class UVCCamera {
 		return result;
 	}
 
-	private static final void addSize(final JSONObject format, final int type, final List<Size> size_list) throws JSONException {
+//	private static final void addSize(final JSONObject format, final int type, final List<Size> size_list) throws JSONException {
+//		final JSONArray size = format.getJSONArray("size");
+//		final int size_nums = size.length();
+//		for (int j = 0; j < size_nums; j++) {
+//			final String[] sz = size.getString(j).split("x");
+//			try {
+//				size_list.add(new Size(type, j, Integer.parseInt(sz[0]), Integer.parseInt(sz[1])));
+//			} catch (final Exception e) {
+//				break;
+//			}
+//		}
+//	}
+
+	private static final void addSize(final JSONObject format, final int formatType, final int frameType, final List<Size> size_list) throws JSONException {
 		final JSONArray size = format.getJSONArray("size");
 		final int size_nums = size.length();
 		for (int j = 0; j < size_nums; j++) {
 			final String[] sz = size.getString(j).split("x");
 			try {
-				size_list.add(new Size(type, j, Integer.parseInt(sz[0]), Integer.parseInt(sz[1])));
+				size_list.add(new Size(formatType, frameType, j, Integer.parseInt(sz[0]), Integer.parseInt(sz[1])));
 			} catch (final Exception e) {
 				break;
 			}
@@ -1049,7 +1065,7 @@ public class UVCCamera {
     private final native long nativeCreate();
     private final native void nativeDestroy(final long id_camera);
 
-    private static final native int nativeConnect(final long id_camera, final int venderId, final int productId, final int fileDescriptor, String usbfs);
+    private final native int nativeConnect(long id_camera, int venderId, int productId, int fileDescriptor, int busNum, int devAddr, String usbfs);
     private static final native int nativeRelease(final long id_camera);
 
 	private static final native int nativeSetStatusCallback(final long mNativePtr, final IStatusCallback callback);
@@ -1086,6 +1102,9 @@ public class UVCCamera {
 
     private static final native long nativeGetCtrlSupports(final long id_camera);
     private static final native long nativeGetProcSupports(final long id_camera);
+
+	// Add by K.N 2018.11.12
+	private static final native long nativeGetExtSupports(final long id_camera);
 
     private final native int nativeUpdateScanningModeLimit(final long id_camera);
     private static final native int nativeSetScanningMode(final long id_camera, final int scanning_mode);
@@ -1154,6 +1173,12 @@ public class UVCCamera {
 	private final native int nativeUpdateAutoWhiteBlanceLimit(final long id_camera);
     private static final native int nativeSetAutoWhiteBlance(final long id_camera, final boolean autoWhiteBlance);
     private static final native int nativeGetAutoWhiteBlance(final long id_camera);
+
+	// Add by K.N 2018.11.12
+	private static final native int nativeGetCaptureStill(final long id_camera);
+	private static final native int nativeGetMeasureUnit(final long id_camera);
+	private static final native int nativeGetCaptureUnit(final long id_camera);
+	private static final native int native_GGet_DeviceTypeunit(final long id_camera);
 
     private final native int nativeUpdateAutoWhiteBlanceCompoLimit(final long id_camera);
     private static final native int nativeSetAutoWhiteBlanceCompo(final long id_camera, final boolean autoWhiteBlanceCompo);
